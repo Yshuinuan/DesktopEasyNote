@@ -27,3 +27,7 @@ dist-ssr
 任务管理/
 docs/打包与验收记录.md
 .git-old-private/
+
+# 安装包 / 压缩包，不入库（走 GitHub Releases）
+*.zip
+*.exe
