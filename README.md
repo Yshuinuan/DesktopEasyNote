@@ -19,8 +19,8 @@ Tauri 2 + Rust + Vite + TypeScript（无 UI 框架）
 
 ## 安装使用（普通用户）
 
-1. 打开 [Releases](https://github.com/Yshuinuan/DesktopEasyNote/releases) 页，下载最新版本的 zip
-   （v0.1.0 为 `DesktopEasyNote_0.1.0_trial_2026-11-18.zip`）。
+1. 打开 [Releases](https://github.com/Yshuinuan/DesktopEasyNote/releases) 页，下载最新版本资源中的 zip
+   （内含安装包与 `使用说明.txt`）。
 2. 解压后运行其中的 `*_x64-setup.exe`，按提示装到当前用户目录
    `%LOCALAPPDATA%\Programs\DesktopEasyNote`，不需要管理员权限。
 3. 若出现「Windows 已保护你的电脑」（SmartScreen），点「更多信息」→「仍要运行」。
