@@ -396,10 +396,31 @@ export function mountRecords(root: HTMLElement): void {
     last.after(createDraftLine());
   };
 
+  /**
+   * R18：只把光标行从不可见拉回可视区，做最小滚动（避免每次输入强制滚底）。
+   * 只改滚动位置，不重建节点、不动选区/焦点，因此不会打断输入法组合。
+   */
+  const ensureLineVisible = (line: HTMLElement): void => {
+    if (!line.isConnected) return;
+    const view = refs.editor.getBoundingClientRect();
+    const rect = line.getBoundingClientRect();
+    const margin = 2;
+    let delta = 0;
+    if (rect.bottom > view.bottom - margin) {
+      delta = rect.bottom - (view.bottom - margin);
+    } else if (rect.top < view.top + margin) {
+      delta = rect.top - (view.top + margin);
+    }
+    if (delta === 0) return;
+
+    const max = Math.max(0, refs.editor.scrollHeight - refs.editor.clientHeight);
+    const target = Math.min(max, Math.max(0, refs.editor.scrollTop + delta));
+    if (target !== refs.editor.scrollTop) refs.editor.scrollTop = target;
+  };
+
   const focusLine = (line: HTMLElement, position: "start" | "end" = "end"): void => {
     if (refs.editor.contentEditable !== "true") return;
     refs.editor.focus();
-    line.scrollIntoView({ block: "nearest" });
     const range = document.createRange();
     range.selectNodeContents(line);
     range.collapse(position === "start");
@@ -407,6 +428,7 @@ export function mountRecords(root: HTMLElement): void {
     if (!selection) return;
     selection.removeAllRanges();
     selection.addRange(range);
+    ensureLineVisible(line);
   };
 
   const insertDraftAfter = (line: HTMLElement): HTMLDivElement => {
@@ -483,6 +505,8 @@ export function mountRecords(root: HTMLElement): void {
     selection.removeAllRanges();
     selection.addRange(range);
     refreshLine(line);
+    // R18：粘贴多行会被压成单行/变高，确保光标行（行尾）仍在可视区。
+    ensureLineVisible(line);
   };
 
   const collectDocument = (): DocumentSnapshot => {
@@ -569,6 +593,11 @@ export function mountRecords(root: HTMLElement): void {
       const all = getLines();
       const last = all[all.length - 1];
       if (last) focusLine(last, "end");
+    } else {
+      // 设置面板打开时不能抢焦点，但载入长文档仍先滚到文末草稿，关闭面板即可续写。
+      const all = getLines();
+      const last = all[all.length - 1];
+      if (last) ensureLineVisible(last);
     }
   };
 
@@ -1291,6 +1320,8 @@ export function mountRecords(root: HTMLElement): void {
     const newLine = directLineFromSelection();
     if (newLine === null || newLine === line || !newLine.isConnected) return null;
     adoptNativeLine(newLine);
+    // R18：原生 insertParagraph 不会主动把新行滚进可视区；只滚动不改选区，保住 IME。
+    ensureLineVisible(newLine);
     return newLine;
   };
 

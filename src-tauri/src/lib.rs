@@ -49,14 +49,30 @@ pub fn run() {
         .setup(|app| {
             let handle = app.handle().clone();
 
-            // 1) 路径与日志最先就绪，后面所有初始化都能写日志
+            // 1) 路径与日志最先就绪，后面所有初始化都能写日志。
+            //    R16 迁移在 paths::init 内完成（早于日志初始化），报告缓存后在日志就绪时输出。
             let app_paths = paths::init();
             logging::init(&app_paths.logs_dir);
             logging::info(format!(
-                "应用启动 v{}（数据目录: {}）",
+                "应用启动 v{}（数据目录: {}，本次启动使用{}根）",
                 app.package_info().version,
-                app_paths.root.display()
+                app_paths.root.display(),
+                if app_paths.root.file_name().and_then(|name| name.to_str())
+                    == Some(paths::LEGACY_ROOT_DIR_NAME)
+                {
+                    "旧"
+                } else {
+                    "新"
+                }
             ));
+            if let Some(report) = paths::migration_report() {
+                for error in report.error_lines() {
+                    logging::error(error);
+                }
+                for info in report.info_lines() {
+                    logging::info(info);
+                }
+            }
             for warning in paths::init_warnings() {
                 logging::warn(warning);
             }
