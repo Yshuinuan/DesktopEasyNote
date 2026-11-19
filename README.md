@@ -42,7 +42,7 @@ pnpm tauri build
 - `config.json` 仅存本机 API Key，不入库
 
 ## 使用
-
+可以使用仓库已有zip包直接安装使用
 1. 安装后首次启动，填入自己的 DeepSeek API Key（`platform.deepseek.com`）
 2. 页头写记录；`#` 出标题；右键记录行加心情
 3. 保持应用运行，次日 07:00 自动生成；或下次启动自动补跑
