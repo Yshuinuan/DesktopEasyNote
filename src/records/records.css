@@ -1,0 +1,625 @@
+/* 记录页样式（P1，任务书 v1.6：整页文档编辑器）。
+   只复用 P0 main.css 的 CSS 变量，不引入 UI 框架。 */
+
+.records-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  padding: 18px 20px 16px;
+}
+
+.records-page [hidden] {
+  display: none !important;
+}
+
+/* ---------- 页面头部：标题 + 今天 + 保存/设置/— ---------- */
+
+.records-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  row-gap: 6px;
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.records-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.records-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.records-day {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+
+.records-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin-left: auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.records-button {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.records-button:hover {
+  border-color: var(--accent);
+}
+
+.records-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.records-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.records-button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.records-button-primary:hover {
+  border-color: var(--accent);
+  opacity: 0.92;
+}
+
+.records-button-hide {
+  padding: 7px 10px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.records-button-hide:hover {
+  color: var(--ink);
+}
+
+.records-error {
+  margin: 0;
+  flex: none;
+  font-size: 12px;
+  color: var(--danger);
+}
+
+/* ---------- 整页可编辑文档 ---------- */
+
+.doc {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 6px 72px 2px;
+  outline: none;
+  cursor: text;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.doc[contenteditable="false"] {
+  cursor: default;
+  opacity: 0.86;
+}
+
+.doc-line {
+  min-height: 1.7em;
+  padding: 1px 0;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* 记录行：不可手改的行首时间（::before 伪元素，不在文本里） */
+.doc-line[data-kind="entry"][data-time]::before {
+  content: attr(data-time);
+  margin-right: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 记录行/草稿行：行尾心情小标签（伪元素，不进入正文） */
+.doc-line[data-mood]::after {
+  content: attr(data-mood);
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(111, 96, 73, 0.09);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.5;
+  vertical-align: 1px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 标题行：`#`–`######`，1–3 级字号差异明显，4–6 级用最小标题字号。
+   v1.7：非光标所在标题行隐藏 `#` 标记（Typora 式），光标进入后显示。 */
+.doc-line[data-kind="heading"] {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.doc-heading-mark {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.doc-line[data-kind="heading"] .doc-heading-mark {
+  display: none;
+}
+
+.doc-line[data-kind="heading"].is-active .doc-heading-mark {
+  display: inline;
+}
+
+.doc-line[data-level="1"] {
+  font-size: 26px;
+  line-height: 1.35;
+  margin: 12px 0 4px;
+}
+
+.doc-line[data-level="2"] {
+  font-size: 21px;
+  line-height: 1.4;
+  margin: 10px 0 3px;
+}
+
+.doc-line[data-level="3"] {
+  font-size: 17.5px;
+  line-height: 1.45;
+  margin: 8px 0 2px;
+}
+
+.doc-line[data-level="4"] {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 6px 0 1px;
+}
+
+.doc-line[data-level="5"] {
+  font-size: 14.5px;
+  line-height: 1.5;
+  margin: 5px 0 1px;
+}
+
+.doc-line[data-level="6"] {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 4px 0 1px;
+}
+
+/* ---------- 右键心情菜单（R16：运行时心情 + 添加/删除） ---------- */
+
+.records-mood-menu {
+  position: fixed;
+  z-index: 40;
+  min-width: 156px;
+  max-width: 240px;
+  margin: 0;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.records-mood-menu [hidden] {
+  display: none !important;
+}
+
+.records-mood-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.records-mood-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 6px;
+  color: var(--ink);
+}
+
+.records-mood-item:hover,
+.records-mood-item:focus-within {
+  background: rgba(111, 96, 73, 0.08);
+}
+
+.records-mood-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.records-mood-label:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.records-mood-item.is-selected .records-mood-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.records-mood-item.is-selected .records-mood-label::after {
+  content: "✓";
+  float: right;
+  margin-left: 8px;
+}
+
+.records-mood-remove {
+  flex: none;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1;
+  width: 22px;
+  height: 22px;
+  margin-right: 2px;
+  border-radius: 5px;
+  cursor: pointer;
+  visibility: hidden;
+}
+
+.records-mood-item:hover .records-mood-remove,
+.records-mood-item:focus-within .records-mood-remove {
+  visibility: visible;
+}
+
+.records-mood-remove:hover,
+.records-mood-remove:focus-visible {
+  background: rgba(180, 71, 47, 0.1);
+  color: var(--danger);
+  outline: none;
+}
+
+.records-mood-menu-error {
+  margin: 0;
+  padding: 2px 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+.records-mood-add-row {
+  flex: none;
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+}
+
+.records-mood-add-button {
+  appearance: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.records-mood-add-button:hover,
+.records-mood-add-button:focus-visible {
+  background: rgba(111, 96, 73, 0.08);
+  color: var(--ink);
+  outline: none;
+}
+
+.records-mood-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px;
+}
+
+.records-mood-add-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 6px 8px;
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.records-mood-add-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(111, 96, 73, 0.12);
+}
+
+.records-mood-add-error {
+  margin: 0;
+  padding: 0 2px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- R17 预设标题面板 ---------- */
+
+.records-heading-panel {
+  position: fixed;
+  z-index: 45;
+  width: 260px;
+  max-width: calc(100vw - 16px);
+  margin: 0;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.records-heading-panel [hidden] {
+  display: none !important;
+}
+
+.records-preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.records-preset-empty {
+  margin: 6px 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.records-preset-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 6px;
+  color: var(--ink);
+}
+
+.records-preset-item:hover,
+.records-preset-item:focus-within {
+  background: rgba(111, 96, 73, 0.08);
+}
+
+.records-preset-insert {
+  flex: 1 1 auto;
+  min-width: 0;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.records-preset-insert:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.records-preset-edit,
+.records-preset-remove {
+  flex: none;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  cursor: pointer;
+  visibility: hidden;
+}
+
+.records-preset-item:hover .records-preset-edit,
+.records-preset-item:hover .records-preset-remove,
+.records-preset-item:focus-within .records-preset-edit,
+.records-preset-item:focus-within .records-preset-remove {
+  visibility: visible;
+}
+
+.records-preset-edit:hover,
+.records-preset-edit:focus-visible {
+  background: rgba(111, 96, 73, 0.12);
+  color: var(--ink);
+  outline: none;
+}
+
+.records-preset-remove:hover,
+.records-preset-remove:focus-visible {
+  background: rgba(180, 71, 47, 0.1);
+  color: var(--danger);
+  outline: none;
+}
+
+.records-preset-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px;
+}
+
+.records-preset-form-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.records-preset-text-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 6px 8px;
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.records-preset-text-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(111, 96, 73, 0.12);
+}
+
+.records-preset-level-select {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 6px 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.records-preset-level-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(111, 96, 73, 0.12);
+}
+
+.records-preset-form-error,
+.records-preset-panel-error {
+  margin: 0;
+  padding: 0 2px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+.records-preset-add-row {
+  flex: none;
+  border-top: 1px solid var(--line);
+  padding-top: 4px;
+}
+
+.records-preset-add-button {
+  appearance: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.records-preset-add-button:hover,
+.records-preset-add-button:focus-visible {
+  background: rgba(111, 96, 73, 0.08);
+  color: var(--ink);
+  outline: none;
+}
+
+.records-preset-add-form {
+  padding: 2px;
+}

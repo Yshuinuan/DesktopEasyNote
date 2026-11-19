@@ -1,0 +1,11 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "主窗口与屏底提示窗口的基础能力；事件监听与自定义命令由 invoke_handler 提供，不受此文件限制。R13 无边框窗口另加两项最小权限：allow-hide（前端 hideToTray 隐藏到托盘）、allow-start-dragging（页头 data-tauri-drag-region 拖动窗口）。",
+  "windows": ["main", "toast"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-hide",
+    "core:window:allow-start-dragging"
+  ]
+}

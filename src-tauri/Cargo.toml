@@ -1,0 +1,38 @@
+[package]
+name = "desktop-narrator"
+version = "0.1.0"
+description = "桌面旁白记录器"
+authors = ["local"]
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "desktop_narrator_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# 托盘图标需要 tray-icon 特性；默认窗口图标解码需要 image-png 特性
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+# 单实例：第二次启动唤起已有窗口，不出现第二个托盘
+tauri-plugin-single-instance = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# 共享领域工具（06:00 跨天、时间戳）与 P2 定时，均用本地时间
+chrono = { version = "0.4", features = ["serde"] }
+# P2 调用 DeepSeek 用；TLS 采用 Windows 自带 SChannel（reqwest 默认 native-tls），不引入 OpenSSL
+reqwest = { version = "0.12", features = ["json"] }
+
+# Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true
