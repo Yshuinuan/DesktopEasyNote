@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 私有过程文档，不公开
+任务管理/
+docs/打包与验收记录.md
+.git-old-private/
